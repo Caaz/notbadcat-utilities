@@ -6,3 +6,6 @@ WorkshopItems
 
 # Configuration
 config.json
+
+# Things we might use as input
+*.txt

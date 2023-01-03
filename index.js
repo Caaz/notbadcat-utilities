@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 const fs = require('fs');
 const path = require('path');
 
@@ -7,14 +9,14 @@ const config = require('./config.json');
 
 const client = new SteamAPIClient(config.steamApiKey);
 
-const workshopId = process.argv[2];
+const filePath = process.argv[2];
 
-if (!workshopId) {
-    console.error('Error: Please provide a Steam Workshop ID as an argument.');
+if (!filePath) {
+    console.error('Error: Please provide a path to a text file with a list of workshop URLs as an argument.');
     process.exit(1);
 }
 
-async function run() {
+async function run(workshopId) {
     try {
         const workshopInfo = await client.getWorkshopInfo(workshopId);
         const workshopDir = path.join(__dirname, 'WorkshopItems');
@@ -36,4 +38,17 @@ async function run() {
     }
 }
 
-run();
+async function main() {
+    try {
+        const fileContent = fs.readFileSync(filePath, 'utf8');
+        const workshopIds = fileContent.match(/id=\d+/g).map(idString => idString.replace('id=', ''));
+        for (const workshopId of workshopIds) {
+            await run(workshopId);
+        }
+    } catch (error) {
+        console.error(error);
+        process.exit(1);
+    }
+}
+
+main();
